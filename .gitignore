@@ -1,0 +1,4 @@
+data/cc.zh.300.vec
+data/*.csv
+models/*.pth
+__pycache__/
