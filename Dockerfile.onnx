@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements-onnx.txt .
+RUN pip install --no-cache-dir -r requirements-onnx.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+COPY app.py templates/ models/best_model_bert_quant.onnx ./
+
+ENV MODEL_TYPE=onnx
+EXPOSE 5000
+CMD ["python", "app.py"]

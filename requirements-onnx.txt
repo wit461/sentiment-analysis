@@ -1,0 +1,6 @@
+Flask>=3.0
+pandas>=2.0
+numpy>=1.24
+onnxruntime>=1.18
+transformers>=4.40
+jieba>=0.42

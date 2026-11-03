@@ -54,10 +54,27 @@ Web 服务默认加载 BERT（`MODEL_TYPE=bert`），追求极低延迟时可切
 # 默认 BERT 模型（需可访问 HuggingFace 或设置 HF_ENDPOINT 镜像）
 python app.py
 
+# 量化 ONNX 推理（CPU 单条约 36.5ms，无需 GPU）
+$env:MODEL_TYPE = "onnx"
+python app.py
+
 # 切换为轻量 BiLSTM 模型（CPU 3ms/条）
 $env:MODEL_TYPE = "bilstm"
 python app.py
 ```
+
+## 📦 ONNX 部署
+
+微调 BERT 经 ONNX int8 动态量化后：模型体积 409MB → 103MB，CPU 单条延迟
+97.7ms → 36.5ms（约 2.7 倍），批量推理每条约 6ms。导出脚本见
+`experiments/export_onnx.py`，推理脚本见 `experiments/infer_onnx.py`；
+`Dockerfile.onnx` + `requirements-onnx.txt` 提供不含 PyTorch 的轻量镜像部署。
+
+## 🧪 数据增强实验
+
+对少数类（负面）做字符级 EDA 增强（删除/插入/交换，负面 1466→2930）后微调 BERT，
+测试集准确率 90.5%，未超过原模型（91.5%）——字符级增噪对该数据集为负收益，
+结论已记录于训练脚本 `experiments/train_bert_aug.py`。
 
 ## 📁 项目结构
 

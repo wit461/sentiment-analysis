@@ -57,6 +57,41 @@ def _build_predictor():
             return preds, confs
 
         model_name = "BiLSTM + Attention + 预训练词向量"
+    elif MODEL_TYPE == "onnx":
+        import numpy as np
+        import onnxruntime as ort
+        from transformers import AutoTokenizer
+
+        sess = ort.InferenceSession("models/best_model_bert_quant.onnx",
+                                    providers=["CPUExecutionProvider"])
+        tokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
+
+        def _run(enc):
+            logits = sess.run(None, {
+                "input_ids": enc["input_ids"],
+                "attention_mask": enc["attention_mask"],
+                "token_type_ids": enc["token_type_ids"],
+            })[0]
+            probs = np.exp(logits - logits.max(axis=1, keepdims=True))
+            probs /= probs.sum(axis=1, keepdims=True)
+            return probs
+
+        def predict_single(text):
+            enc = tokenizer(str(text), max_length=128, padding="max_length",
+                            truncation=True, return_tensors="np")
+            probs = _run(enc)[0]
+            pred = int(np.argmax(probs))
+            return pred, float(probs[pred])
+
+        def predict_batch(texts):
+            enc = tokenizer([str(t) for t in texts], max_length=128, padding=True,
+                            truncation=True, return_tensors="np")
+            probs = _run(enc)
+            preds = np.argmax(probs, axis=1).tolist()
+            confs = [float(probs[i][p]) for i, p in enumerate(preds)]
+            return preds, confs
+
+        model_name = "BERT int8 ONNX（量化）"
     else:
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
