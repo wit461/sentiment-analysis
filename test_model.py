@@ -6,7 +6,7 @@ import jieba
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 vocab = load_vocab('data/vocab.pkl')
 model = BiLSTM_Attention(len(vocab), 300, 128, 2).to(DEVICE)
-model.load_state_dict(torch.load('models/best_model.pth', map_location=DEVICE))
+model.load_state_dict(torch.load('models/best_model_emb.pth', map_location=DEVICE))
 model.eval()
 MAX_LEN = 100
 

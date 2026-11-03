@@ -24,7 +24,7 @@ class BiLSTM_Attention(nn.Module):
             self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
 
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True, bidirectional=True, num_layers=2, dropout=0.5)
-        self.attention = Attention(hidden_dim * 2)
+        self.attention = Attention(hidden_dim)
         self.fc = nn.Sequential(
             nn.Dropout(0.5),
             nn.Linear(hidden_dim * 2, hidden_dim),
