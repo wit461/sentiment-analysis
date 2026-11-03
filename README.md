@@ -31,6 +31,28 @@
 > 修复记录：`model.py` 中 Attention 层维度在训练后被误改为 `hidden_dim * 2`，
 > 导致已保存权重加载失败；已修复并复测基线。
 
+## ⚖️ 模型对比与选择
+
+| 模型 | 参数量 | CPU 单条延迟 | GPU 单条延迟 | 测试集准确率 |
+|------|--------|--------------|--------------|--------------|
+| BiLSTM + Attention + 预训练词向量 | 7.69M | 3.0 ms | 1.8 ms | 86.80% |
+| BERT-base-chinese 微调 | 102.27M | 97.7 ms | 15.6 ms | 91.50% |
+
+延迟为单条预测实测（RTX 3050 Laptop；批量推理时每条约 0.77 ms / 10.9 ms）。
+Web 服务默认加载 BERT（`MODEL_TYPE=bert`），追求极低延迟时可切换
+`MODEL_TYPE=bilstm`。综合推理速度与部署成本，轻量架构（BiLSTM）适合实时与大批量场景。
+
+## 🚀 运行
+
+```powershell
+# 默认 BERT 模型（需可访问 HuggingFace 或设置 HF_ENDPOINT 镜像）
+python app.py
+
+# 切换为轻量 BiLSTM 模型（CPU 3ms/条）
+$env:MODEL_TYPE = "bilstm"
+python app.py
+```
+
 ## 📁 项目结构
 
 ├── data/ # 数据集、词汇表
